@@ -1,0 +1,26 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>我的網站</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+</head>
+<body>
+    <header>
+        {% if user.is_authenticated %}
+            <p>你好，{{ user.username }}!<a href="{% url 'logout' %}">登出</a></p>
+        {% else %}
+            <a href="{% url 'login' %}">登入</a> | <a href="{% url 'register' %}">註冊</a>
+        {% endif %}
+    </header>
+
+    <hr>
+
+    <main>
+        {% block content %}
+        <!-- 各子頁面的內容會出現在這裡 -->
+        {% endblock %}
+    </main>
+</body>
+</html>

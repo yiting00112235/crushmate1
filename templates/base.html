@@ -1,0 +1,26 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}Crushmate{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>  <!-- ✅ 這一行是關鍵 -->
+
+</head>
+<body class="bg-gray-100 pb-16">  <!-- 留底部空間 -->
+
+  {% block content %}
+  {% endblock %}
+
+  <!-- ✅ 底部選單放這裡 -->
+  <div class="fixed bottom-0 w-full bg-white border-t shadow-md">
+    <div class="flex justify-around py-3">
+      <a href="{% url 'home' %}" class="text-gray-500 font-bold">Home</a>
+      <a href="{% url 'user_list' %}" class="text-gray-500 font-bold">Chat</a>
+      <a href="{% url 'settings' %}" class="text-gray-500 font-bold">Settings</a>
+      <a href="{% url 'account_logout' %}" class="text-gray-500 font-bold">Logout</a>
+    </div>
+  </div>
+
+</body>
+</html>

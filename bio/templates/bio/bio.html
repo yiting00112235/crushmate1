@@ -1,0 +1,89 @@
+<!-- bio/templates/bio.html (這個是按鈕2: Profile) -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Bio Settings{% endblock %}
+
+{% block content %}
+<!-- 返回設定 -->
+<div class="text-left px-6 pt-6">
+  <a href="{% url 'settings' %}" class="text-blue-600 font-semibold">&lt; Settings</a>
+</div>
+
+<!-- 表單主體 -->
+<div class="max-w-2xl mx-auto mt-8 px-6">
+  <div class="bg-white rounded-xl shadow-md p-8">
+    <h2 class="text-3xl font-extrabold text-center text-gray-800 mb-8">Edit Your Profile</h2>
+
+    <form method="POST" enctype="multipart/form-data" class="space-y-6" id="bio-form">
+      {% csrf_token %}
+
+      <!-- 自我介紹 -->
+      <div>
+        <label class="block text-base font-semibold text-gray-700 mb-2">Bio</label>
+        <textarea name="bio" rows="4"
+          class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none transition shadow-sm resize-none">{{ profile.bio|default_if_none:"" }}</textarea>
+      </div>
+
+      <!-- 身高與體重 -->
+      <div class="grid grid-cols-2 gap-6">
+        <div>
+          <label class="block text-base font-semibold text-gray-700 mb-2">Height (cm)</label>
+          <input type="number" name="height" value="{{ profile.height }}"
+            class="prevent-enter w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 shadow-sm">
+        </div>
+        <div>
+          <label class="block text-base font-semibold text-gray-700 mb-2">Weight (kg)</label>
+          <input type="number" name="weight" value="{{ profile.weight }}"
+            class="prevent-enter w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 shadow-sm">
+        </div>
+      </div>
+
+      <!-- 系所 -->
+      <div>
+        <label class="block text-base font-semibold text-gray-700 mb-2">Department</label>
+        <input type="text" name="department" value="{{ profile.department|default_if_none:"" }}"
+          class="prevent-enter w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 shadow-sm">
+      </div>
+
+      <!-- 興趣區 -->
+      <div>
+        <label class="block text-base font-semibold text-gray-700 mb-2">Interest</label>
+        <select name="interest"
+          class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 shadow-sm">
+          {% for option in interest_choices %}
+            <option value="{{ option }}" {% if option in profile.interests %}selected{% endif %}>{{ option }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- 儲存按鈕 -->
+      <div class="text-right pt-4">
+        <button type="submit" onclick="syncInterests()"
+          class="px-6 py-3 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 transition shadow-md">
+          Save Profile
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- JS 互動區 -->
+<script>
+  document.querySelectorAll('.prevent-enter').forEach(input => {
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') e.preventDefault();
+    });
+  });
+
+  function syncInterests() {
+    const tags = document.querySelectorAll('#interest-list span');
+    const result = [];
+    tags.forEach(tag => {
+      const text = tag.childNodes[0].nodeValue.trim();
+      result.push(text);
+    });
+    document.getElementById('interests_list').value = JSON.stringify(result);
+  }
+</script>
+{% endblock %}

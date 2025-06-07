@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}My Profile{% endblock %}
+{% block content %}
+
+<!-- 返回設定 -->
+<div class="text-left px-6 pt-6">
+  <a href="{% url 'settings' %}" class="text-blue-600 font-semibold">&lt; Settings</a>
+</div>
+
+<!-- 主容器 -->
+<div class="flex flex-col items-center justify-center px-6 py-4">
+
+  <!-- 主大頭貼（可點選打開選單） -->
+  <div class="my-4 relative">
+    {% if main_photo %}
+      <img src="{{ main_photo.image.url }}" id="avatar-trigger" class="rounded-full w-28 h-28 object-cover border-4 border-gray-300 shadow-md cursor-pointer" alt="Main Avatar">
+    {% else %}
+      <img src="{% static 'default-avatar.png' %}" id="avatar-trigger" class="rounded-full w-28 h-28 object-cover border-4 border-gray-300 shadow-md cursor-pointer" alt="Default Avatar">
+    {% endif %}
+
+    <!-- 選擇大頭貼下拉清單 -->
+    <div id="avatar-selector" class="hidden absolute top-32 left-1/2 -translate-x-1/2 bg-white border rounded shadow-md p-4 z-10 w-64">
+      <p class="text-sm font-semibold mb-2">Choose your profile picture:</p>
+      <div class="grid grid-cols-3 gap-2">
+        {% for photo in photos %}
+        <form method="post" action="{% url 'set_main_photo' photo.id %}">
+          {% csrf_token %}
+          <button type="submit">
+            <img src="{{ photo.image.url }}" class="w-16 h-16 object-cover rounded-full border hover:ring-2 ring-blue-400">
+          </button>
+        </form>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- 上傳圖片功能 -->
+  <form method="post" enctype="multipart/form-data" class="mb-6">
+    {% csrf_token %}
+    {{ form.image }}
+    <button type="submit" class="ml-2 px-4 py-1 bg-blue-500 text-white rounded">Upload</button>
+  </form>
+
+  <!-- 九宮格圖片 -->
+  <div class="grid grid-cols-3 gap-6 w-full max-w-4xl px-6">
+    {% for photo in photos %}
+      <div class="relative group">
+        <img src="{{ photo.image.url }}" class="w-full h-40 object-cover rounded-lg shadow-md">
+        <form method="post" action="{% url 'delete_photo' photo.id %}" class="absolute top-1 right-1">
+          {% csrf_token %}
+          <button type="submit" class="bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center">✕</button>
+        </form>
+      </div>
+    {% endfor %}
+  </div>
+
+</div>
+
+<!-- 點擊頭貼開關選單腳本 -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const trigger = document.getElementById('avatar-trigger');
+    const selector = document.getElementById('avatar-selector');
+
+    trigger.addEventListener('click', () => {
+      selector.classList.toggle('hidden');
+    });
+
+    // 點選選單以外的地方就關閉
+    document.addEventListener('click', function(event) {
+      if (!trigger.contains(event.target) && !selector.contains(event.target)) {
+        selector.classList.add('hidden');
+      }
+    });
+  });
+</script>
+
+{% endblock %}

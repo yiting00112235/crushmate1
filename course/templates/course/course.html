@@ -1,0 +1,60 @@
+<!-- course/templates/course.html (這個是按鈕3: Course) -->
+{% extends 'base.html' %}
+{% load static %}
+{% load dict_extras %}  {# 我們會自定義這個 filter（如下） #}
+
+{% block title %}Course Schedule{% endblock %}
+
+
+{% block content %}
+<!-- 返回設定 -->
+<div class="text-left px-6 pt-6">
+  <a href="{% url 'settings' %}" class="text-blue-600 font-semibold">&lt; Settings</a>
+</div>
+
+<div class="max-w-5xl mx-auto mt-10 bg-white rounded-xl shadow-md p-6">
+  <h2 class="text-2xl font-bold text-center mb-6">Your Course Schedule</h2>
+  <form method="POST">
+    {% csrf_token %}
+    <table class="w-full text-center border">
+      <thead>
+        <tr>
+          <th class="border px-2 py-1">Time</th>
+          {% for day in days %}
+            <th class="border px-2 py-1">{{ day }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for period in periods %}
+          <tr>
+            <td class="border px-2 py-1">Period {{ period }}</td>
+            {% for day in days %}
+              <td class="border px-1 py-1">
+                <select name="{{ day }}-{{ period }}" class="w-full px-2 py-1 rounded border border-gray-300">
+                  <option value="">---</option>
+                  {% with selected_value=table|dict_get:day|dict_get:period %}
+                    {% for course in courses %}
+                      <option value="{{ course }}"
+                        {% if selected_value == course %}selected{% endif %}>
+                        {{ course }}
+                      </option>
+                    {% endfor %}
+                  {% endwith %}
+                </select>
+              </td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="text-right mt-6">
+      <button type="submit"
+              class="px-6 py-2 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 transition">
+        Save Schedule
+      </button>
+    </div>
+  </form>
+</div>
+
+{% endblock %}

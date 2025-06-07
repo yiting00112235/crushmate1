@@ -1,0 +1,48 @@
+<!-- settingsapp/templates/settings.html -->
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto py-10 px-4 min-h-screen bg-gray-100">
+
+  <!-- 標題 -->
+  <h1 class="text-4xl font-bold text-gray-800 mb-8 ml-4" style="font-family: 'Futura', sans-serif;">
+    Settings Page
+  </h1>
+
+  <!-- 使用者頭貼區塊（改成跟 chat list 一樣大小風格） -->
+  <div class="flex items-center gap-4 bg-white rounded-xl shadow-md p-4 mb-4 hover:bg-gray-100 transition">
+    {% if user_profile.main_photo %}
+      <img src="{{ user_profile.main_photo.image.url }}" class="w-14 h-14 rounded-full object-cover">
+    {% else %}
+      <div class="w-14 h-14 bg-gray-300 rounded-full"></div>
+    {% endif %}
+    <div>
+      <p class="text-lg font-semibold text-gray-800">{{ user.username }}</p>
+    </div>
+  </div>
+
+  <!-- 設定選項卡片（包在一個框裡，與頭貼區塊一致） -->
+  <div class="bg-white rounded-xl shadow-md divide-y divide-gray-300 mb-4 mt-8">
+    <a href="{% url 'profilepage' %}" class="block hover:bg-gray-100 transition px-4 py-4">
+      <div class="flex items-center gap-4">
+        <span class="text-lg font-semibold text-gray-800">📸 Pictures</span>
+      </div>
+    </a>
+
+    <a href="{% url 'bio_settings' %}" class="block hover:bg-gray-100 transition px-4 py-4">
+      <div class="flex items-center gap-4">
+        <span class="text-lg font-semibold text-gray-800">📝 Profile</span>
+      </div>
+    </a>
+
+    <a href="{% url 'course' %}" class="block hover:bg-gray-100 transition px-4 py-4">
+      <div class="flex items-center gap-4">
+        <span class="text-lg font-semibold text-gray-800">📚 Course</span>
+      </div>
+    </a>
+  </div>
+
+
+</div>
+{% endblock %}

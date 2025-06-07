@@ -1,0 +1,131 @@
+
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>Crushmate Signup</title>
+  <style>
+    body {
+      font-family: "Helvetica Neue", sans-serif;
+      background-color: #f5f7fb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .signup-box {
+      background-color: #fff;
+      padding: 2.5rem;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+      width: 400px;
+    }
+
+    .signup-box h2 {
+      text-align: center;
+      font-size: 1.8rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 0.6rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 0.75rem;
+      background-color: #4a90e2;
+      color: white;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      margin-top: 1.5rem;
+      cursor: pointer;
+    }
+
+    .submit-btn:hover {
+      background-color: #357ab8;
+    }
+
+    .bottom-links {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.9rem;
+    }
+
+    .bottom-links a {
+      color: #4a90e2;
+      text-decoration: none;
+      margin-left: 5px;
+    }
+
+    .bottom-links a:hover {
+      text-decoration: underline;
+    }
+
+    .errors {
+      color: #d9534f;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="signup-box">
+    <h2>Crushmate Sign up</h2>
+
+    <form method="POST" action="{% url 'account_signup' %}">
+      {% csrf_token %}
+
+      {% if form.errors %}
+        <div class="errors">
+          {{ form.errors }}
+        </div>
+      {% endif %}
+
+      <div class="form-group">
+        <label for="{{ form.username.id_for_label }}">Username</label>
+        {{ form.username }}
+      </div>
+
+      <div class="form-group">
+        <label for="{{ form.email.id_for_label }}">Email（Gmail）：</label>
+        {{ form.email }}
+      </div>
+
+      <div class="form-group">
+        <label for="{{ form.password1.id_for_label }}">Password：</label>
+        {{ form.password1 }}
+      </div>
+
+      <div class="form-group">
+        <label for="{{ form.password2.id_for_label }}">Password confirmation：</label>
+        {{ form.password2 }}
+      </div>
+
+      <button type="submit" class="submit-btn">Sign up</button>
+    </form>
+
+    <div class="bottom-links">
+      <p>Already have an account?<a href="{% url 'account_login' %}">Sign in</a></p>
+    </div>
+  </div>
+</body>
+</html>
+

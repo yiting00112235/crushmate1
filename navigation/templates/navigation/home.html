@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<!-- Logo 區塊 -->
+<div class="w-full text-center py-4 bg-gray-100">
+  <h1 class="text-5xl text-pink-600 mt-4" style="font-family: 'Futura', sans-serif; font-weight: bold;">
+    Crushmate
+  </h1>
+</div>
+{% if not has_main_photo %}
+<div class="bg-white border border-yellow-300 rounded-2xl shadow-lg p-5 mb-6 flex items-center space-x-4">
+  <svg class="w-6 h-6 text-yellow-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z"/>
+  </svg>
+  <div>
+    <p class="font-semibold text-yellow-700 text-lg mb-1">You're missing a main photo</p>
+    <p class="text-gray-700">
+      To be visible to other users, please upload your main profile picture. 
+      <a href="{% url 'profilepage' %}" class="text-blue-600 underline hover:text-blue-800">Upload now</a>.
+    </p>
+  </div>
+</div>
+{% endif %}
+<!-- 主內容容器 -->
+<div class="flex flex-col items-center justify-start min-h-screen bg-gray-100 pt-10 px-6">
+  {% if recommendations %}
+    <div id="card-container" class="relative w-full max-w-3xl flex items-center justify-center">
+      {% for rec in recommendations %}
+        {% with forloop.counter0 as index %}
+        <div class="card w-full bg-white rounded-xl shadow-lg transition-all duration-500 ease-in-out transform scale-100 overflow-hidden"
+             data-username="{{ rec.user.username }}"
+             data-photo-id="{{ rec.main_photo.id }}"
+             style="{% if not forloop.first %}display: none;{% endif %}">
+
+          <!-- 上方相簿 -->
+          <div class="relative w-full h-96 bg-gray-200 flex items-center justify-center">
+            <button class="absolute left-0 text-gray-500 hover:text-pink-600 text-3xl px-3" onclick="prevPhoto({{ index }})">&#10094;</button>
+            <div class="w-full h-full flex items-center justify-center">
+              {% for photo in rec.other_photos %}
+                <img src="{{ photo.image.url }}" alt="Extra Photo"
+                     class="carousel-photo-{{ index }} w-full h-full object-cover"
+                     style="display: {% if forloop.first %}block{% else %}none{% endif %};">
+              {% endfor %}
+            </div>
+            <button class="absolute right-0 text-gray-500 hover:text-pink-600 text-3xl px-3" onclick="nextPhoto({{ index }})">&#10095;</button>
+          </div>
+
+          <!-- 下方資訊區 -->
+          <div class="flex items-center gap-6 px-6 py-6 bg-white">
+            {% if rec.main_photo %}
+              <img src="{{ rec.main_photo.image.url }}" alt="Main Photo"
+                   class="w-24 h-24 rounded-full object-cover border-2 shadow">
+            {% else %}
+              <div class="w-24 h-24 rounded-full bg-gray-300"></div>
+            {% endif %}
+            <div>
+              <h2 class="text-2xl font-bold text-gray-800">{{ rec.user.username }}</h2>
+              <p class="text-base text-gray-500 mt-0.5">{{ rec.department|default:"No department" }}</p>
+              <p class="text-sm text-pink-500 mt-2">You have：{{ rec.course_match_count }} courses in common</p>
+              <p class="text-base text-gray-700 mt-2 max-w-[400px] break-words">{{ rec.bio|default:"No bio yet" }}</p>  
+            </div>
+          </div>
+        </div>
+        {% endwith %}
+      {% endfor %}
+    </div>
+
+    <!-- 控制按鈕 -->
+    <div class="flex gap-6 mt-6">
+      <button onclick="swipe('left')" class="bg-red-500 hover:bg-red-600 text-white px-8 py-3 rounded-full shadow">👎Classmate</button>
+      <button onclick="swipe('right')" class="bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-full shadow">👍Crushmate</button>
+    </div>
+  {% else %}
+    <p class="text-gray-600 text-lg">No recommendations!</p>
+  {% endif %}
+
+  <!-- Match 提示彈窗 -->
+  <div id="match-popup" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl shadow-lg p-8 text-center">
+      <h2 class="text-2xl font-bold text-pink-600 mb-4">It's a Match 🔥</h2>
+      <button onclick="closeMatchPopup()" class="bg-pink-500 text-white px-6 py-2 rounded-full">start chatting</button>
+    </div>
+  </div>
+</div>
+
+<!-- 控制腳本 -->
+<script>
+  let currentCardIndex = 0;
+  const cards = document.querySelectorAll('.card');
+  const photoIndexes = {};
+
+  function swipe(direction) {
+    if (currentCardIndex >= cards.length) return;
+    const currentCard = cards[currentCardIndex];
+    const photoId = currentCard.dataset.photoId;
+    const username = currentCard.dataset.username;
+
+    fetch("{% url 'match:swipe' %}", {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': '{{ csrf_token }}',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ direction, photo_id: photoId, username })
+    }).then(response => response.json())
+      .then(data => {
+        if (data.status === 'match') {
+          showMatchPopup(username);
+        }
+      });
+
+    currentCard.style.opacity = 0;
+    setTimeout(() => {
+      currentCard.style.display = 'none';
+      currentCardIndex++;
+      if (currentCardIndex < cards.length) {
+        cards[currentCardIndex].style.display = 'block';
+      }
+    }, 300);
+  }
+
+  function showMatchPopup(username) {
+    const usernameSpan = document.getElementById('match-username');
+    if (usernameSpan) {
+      usernameSpan.innerText = username;
+    }
+    document.getElementById('match-popup').classList.remove('hidden');
+  }
+
+  function closeMatchPopup() {
+    document.getElementById('match-popup').classList.add('hidden');
+  }
+
+  function nextPhoto(index) {
+    const photos = document.querySelectorAll(`.carousel-photo-${index}`);
+    if (!(index in photoIndexes)) photoIndexes[index] = 0;
+    photos[photoIndexes[index]].style.display = 'none';
+    photoIndexes[index] = (photoIndexes[index] + 1) % photos.length;
+    photos[photoIndexes[index]].style.display = 'block';
+  }
+
+  function prevPhoto(index) {
+    const photos = document.querySelectorAll(`.carousel-photo-${index}`);
+    if (!(index in photoIndexes)) photoIndexes[index] = 0;
+    photos[photoIndexes[index]].style.display = 'none';
+    photoIndexes[index] = (photoIndexes[index] - 1 + photos.length) % photos.length;
+    photos[photoIndexes[index]].style.display = 'block';
+  }
+</script>
+{% endblock %}
